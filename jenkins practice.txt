@@ -1,0 +1,79 @@
+
+Demo - setting roles:
+Go to Manage Jenkins -> Manage plugins -> 'Available' tab -> write 'Role' in Filter textbox -> press enter -> You will find 'Role based authorization strategy' plugin. Install this plugin without Jenkins restart.
+Go to 'Global Security' -> click on 'Role Based Strategy' -> Save
+Go to 'Manage Jenkins' -> 'Manage and Assign Roles' -> 'Manage Roles' -> Create a 'Global role' called 'developer' with only read/view access. -> click 'Save' button.
+Create jenkin user... 'Manage Jenkins' -> 'Manage Users' -> Fill 'Create user' form.
+To assign role to newly created user, Go to 'Manage Jenkins' -> 'Manage and Assign Roles' -> 'Assign roles'
+Now, login with newly created user. You will find it cannot start a new job.
+
+
+
+
+*********Integrate Jenkins with Maven based project*********
+Set M2_HOME environment
+Add %M2_HOME%/bin in your PATH
+Run command on console -> mvn --version (Make sure it runs properly)
+Add the user in tomcat's conf/tomcat-users.xml file.
+<user userName="deployer" password="deployer" roles="manager-script" />
+Now start tomcat server.
+Create a freestyle jenkin project say Mvn_Web_App.
+Specify the GIT repository.
+Select 'Build' section -> 'Execute windows batch command'.
+Under command textarea:
+cd Mvn_Web_App
+mvn package
+click 'Save'
+Run the job & check console log to find where war file is created.
+
+
+
+
+*********Deploy war file into Tomcat server*********
+We first need plugin to connect jenkins with tomcat.
+Go to 'Manage plugin' section -> 'Available' tab. Search for 'deployment' word. Find the plugin 'Deploy to container'. Install it without restart.
+Now edit the 'Mvn_Web_App' job. Under 'Add post build action', select 'Deploy war/ear to container.
+Specify war file location->
+WAR/EAR files **/*.war
+Context path mvnwebapp
+Container Tomcat 8.x
+Credentials 'Add' new credentials as specified inside tomcat-users.xml
+Tomcat URL http://localhost:8080/
+Click 'Save'.
+Run the job. If no error found inside console log then run http://localhost:8080/mvnwebapp
+Also check your war file is found inside Tomcat's webap folder.
+
+
+
+
+*********Taking backkup of Jenkins configuration*********
+Go to 'Manage Jenkins' -> 'Available' tab. Search for 'backup' word.
+Click on 'Backup' plugin & install.
+Once plugin is installed successfully, choose 'Manage Jenkins' -> 'Backup manager'
+Click 'Setup' link. Specify backup directory,
+Click 'Save'.
+Start backup by clicking on 'Backup history configuration'.
+Use 'Restore Hudson configuration' link to restore the jenkin backup.
+
+
+
+*********Running Jenkins job in series.
+Suppose you have 3 jenkins jobs: first_job, second_job & third_job
+If you wish to link them together & run them in a sequence then follow below steps:
+Edit first_job.
+Under 'Post build actions', select 'Build other projects' option. Specify 'second_job' under 'Project to build' textbox.
+Click 'Save'.
+Now run the first_job. You will notice in the console output that it is triggering these jobs sequencially.
+
+
+
+
+*********Running Jenkins pipeline*********
+Install 'Delivery Pipeline Plugin'
+Click on 'new view' icon.
+Enter 'View name' as My_first_pipeline'
+Click on 'Delivery pipeline view' radio button.
+Go to pipeline setting.
+'Pipeline' section -> Components -> Initial job (select first_job)
+Click 'OK'
+You can seee visual picture of your job pipeline.
